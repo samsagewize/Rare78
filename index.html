@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    <!-- Add any additional meta tags, stylesheets, or scripts here -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Rare 78</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+     
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Rare 78</h2>
+            <p>This is the main content section of your website.</p>
+
+            <!-- Displaying a PNG image from the local repository -->
+            <img src="sdfvsdfdfdf.png" alt="Sdfvsdfdfdf Image">
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; Bitwell</p>
+    </footer>
+
+    <!-- Add any additional scripts or content here -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <script>
+        // Create a scene
+        const scene = new THREE.Scene();
+        
+        // Set the background color of the scene
+        scene.background = new THREE.Color(0x87CEEB); // Set it to sky blue color
+
+        // Create a camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 10); // Adjusted camera position
+
+        // Create a renderer
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create the well structure (a cylinder) with a wood-like material
+        const wellGeometry = new THREE.CylinderGeometry(2, 2, 4, 32);
+        const wellMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513, shininess: 100 }); // Brown color with shininess
+        const well = new THREE.Mesh(wellGeometry, wellMaterial);
+        scene.add(well);
+
+        // Create the water (a cylinder inside the well)
+        const waterGeometry = new THREE.CylinderGeometry(2.1, 2.1, 3.8, 32);
+        const waterMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+        const water = new THREE.Mesh(waterGeometry, waterMaterial);
+        scene.add(water);
+
+        // Create raindrops
+        const numRaindrops = 1000;
+        const raindrops = [];
+
+        const raindropGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+        const raindropMaterial = new THREE.MeshBasicMaterial({ color: 0x00f });
+        for (let i = 0; i < numRaindrops; i++) {
+            const raindrop = new THREE.Mesh(raindropGeometry, raindropMaterial);
+            raindrop.position.set((Math.random() - 0.5) * 10, Math.random() * 10, (Math.random() - 0.5) * 10);
+            scene.add(raindrop);
+            raindrops.push(raindrop);
+        }
+
+        // Animation function
+        let time = 0;
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+
+            // Simulate water movement by changing the water's position
+            water.position.y = Math.sin(time) * 0.2; // Adjusted water movement
+
+            // Move the camera to view from the top
+            camera.lookAt(0, 1, 0); // Look at the center of the well
+            camera.position.x = Math.sin(time / 2) * 5; // Orbit camera around the well
+
+            // Animate raindrops
+            raindrops.forEach(raindrop => {
+                raindrop.position.y -= 0.1; // Move raindrops downward
+                if (raindrop.position.y < 0) {
+                    // Reset the position of raindrops when they reach the ground
+                    raindrop.position.set((Math.random() - 0.5) * 10, 10, (Math.random() - 0.5) * 10);
+                }
+            });
+
+            time += 0.01;
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+</html>
