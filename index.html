@@ -6,82 +6,65 @@
     <title>Your Page Title</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        header, footer {
-            text-align: center;
-            padding: 1em;
-            background-color: #f0f0f0;
-        }
-
-        canvas {
-            border: 1px solid #000;
-            display: block;
-            margin: 20px auto;
-            background-color: #fff;
-        }
-
-        #toolbar {
-            text-align: center;
-            margin: 20px auto;
-        }
-
-        .color-option {
-            width: 30px;
-            height: 30px;
-            display: inline-block;
-            margin: 0 5px;
+        /* Style for the clickable overlay */
+        .clickable-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px; /* Adjust the size as needed */
+            height: 80px; /* Adjust the size as needed */
+            background-color: transparent; /* Make it transparent */
             cursor: pointer;
-            border: 2px solid transparent;
         }
 
-        .color-option:hover {
-            border: 2px solid #000;
+        /* Styles for the drawing pad */
+        #drawingCanvas {
+            border: 1px solid #ccc;
+            cursor: crosshair;
+        }
+
+        #tools {
+            margin: 10px 0;
         }
 
         #saveButton {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #saveButton:hover {
-            background-color: #45a049;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to Urua Labs</h1>
+        <!-- Header content goes here -->
     </header>
 
     <main>
-        <!-- Self Inscribe Button -->
-        <button id="selfInscribeButton" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
-            Self Inscribe
+        <!-- Displaying a PNG image from the local repository -->
+        <img src="sdfvsdfdfdf.png" alt="Sdfvsdfdfdf Image">
+
+        <!-- Clickable overlay linked to the GitHub repository -->
+        <a href="https://magiceden.io/ordinals/marketplace/rare78" target="_blank" class="clickable-overlay"></a>
+
+        <!-- Invisible clickable button -->
+        <button id="invisibleButton" style="position: absolute; top: 0; right: 0; width: 50px; height: 50px; opacity: 0;">
+        </button>
+        <button id="invisibleButton" style="position: fixed; top: 10px; right: 10px; width: 50px; height: 50px; opacity: 0;">
+            <a href="https://bitwell.wtf" target="_blank" style="display: block; width: 100%; height: 100%;"></a>
         </button>
 
-        <!-- Drawing Pad Elements (Initially Hidden) -->
+        <!-- Self Inscribe Button -->
+        <button id="selfInscribeButton">Self Inscribe</button>
+
+        <!-- Drawing pad modal -->
         <div id="drawingPad" style="display: none;">
-            <div id="toolbar">
-                <div id="colorPalette">
-                    <div class="color-option" style="background-color: #000;" data-color="#000"></div>
-                    <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000"></div>
-                    <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00"></div>
-                    <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff"></div>
-                    <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
-                </div>
+            <canvas id="drawingCanvas" width="500" height="500"></canvas>
+            <div id="tools">
+                <label for="colorPicker">Color: </label>
+                <input type="color" id="colorPicker" value="#000000">
+                <label for="brushSize">Brush Size: </label>
+                <input type="number" id="brushSize" value="5" min="1" max="50">
                 <button id="saveButton">Save Drawing</button>
+                <button id="closeButton">Close</button>
             </div>
-            <canvas id="drawingCanvas" width="800" height="600"></canvas>
         </div>
     </main>
 
@@ -94,57 +77,52 @@
         const drawingPad = document.getElementById('drawingPad');
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const colorOptions = document.querySelectorAll('.color-option');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
         const saveButton = document.getElementById('saveButton');
+        const closeButton = document.getElementById('closeButton');
 
         let isDrawing = false;
-        let currentColor = '#000';
+        let lastX = 0;
+        let lastY = 0;
 
-        // Open the drawing pad when "Self Inscribe" button is clicked
+        // Open the drawing pad
         selfInscribeButton.addEventListener('click', () => {
             drawingPad.style.display = 'block';
         });
 
-        // Change the brush color
-        colorOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                currentColor = option.dataset.color;
-            });
+        // Close the drawing pad
+        closeButton.addEventListener('click', () => {
+            drawingPad.style.display = 'none';
         });
 
-        // Start drawing
+        // Drawing logic
         canvas.addEventListener('mousedown', (e) => {
             isDrawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
+            [lastX, lastY] = [e.offsetX, e.offsetY];
         });
 
-        // Draw on the canvas
         canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) {
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = 5;
-                ctx.lineCap = 'round';
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
-            }
+            if (!isDrawing) return;
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
         });
 
-        // Stop drawing
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-            ctx.closePath();
-        });
-
-        canvas.addEventListener('mouseout', () => {
-            isDrawing = false;
-        });
+        canvas.addEventListener('mouseup', () => (isDrawing = false));
+        canvas.addEventListener('mouseout', () => (isDrawing = false));
 
         // Save the drawing
         saveButton.addEventListener('click', () => {
             const link = document.createElement('a');
-            link.download = 'drawing.png';
-            link.href = canvas.toDataURL();
+            link.download = 'drawing.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.8); // Lower quality for smaller size
             link.click();
         });
     </script>
